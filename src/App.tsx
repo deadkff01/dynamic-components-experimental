@@ -2,47 +2,50 @@ import React, { Suspense } from "react";
 import "./App.css";
 import { DynamicComponent } from "./DynamicComponent";
 
-const buttonCta = () => console.log("test click");
+type FunctionsMap = {
+  [key: string]: () => void;
+};
+
+const functionsMap: FunctionsMap = {
+  BUTTON_CTA: () => console.log("button clicked"),
+};
 
 const json = [
   {
-    componentName: "Header",
-    propValues: [
+    name: "Header",
+    props: [
       {
         type: "string",
-        propName: "text",
-        propValue: "Header text",
+        name: "text",
+        value: "Header text",
       },
     ],
-    childrenComponents: [
+    children: [
       {
-        componentName: "Button",
-        propValues: [
+        name: "Button",
+        props: [
           {
             type: "string",
-            propName: "title",
-            propValue: "button title",
+            name: "title",
+            value: "button title",
           },
-          { type: "function", propName: "onClick", propValue: "buttonCta" },
+          { type: "function", name: "onClick", value: "BUTTON_CTA" },
         ],
       },
     ],
   },
   {
-    componentName: "Button",
-    propValues: [
-      { type: "string", propName: "title", propValue: "custom button title" },
-    ],
+    name: "Button",
+    props: [{ type: "string", name: "title", value: "custom button title" }],
   },
 ];
 
-const parseProps = (propValues: any) => {
-  const values = propValues.map((p: any) => {
+const parseProps = (props: any) => {
+  const values = props.map((p: any) => {
     if (p.type === "function") {
-      // TODO: elimite eval or find another way xD
-      return { [p.propName]: eval(p.propValue) };
+      return { [p.name]: functionsMap[p.value] };
     }
-    return { [p.propName]: p.propValue };
+    return { [p.name]: p.value };
   });
 
   const transformToObject = values.reduce((obj: any, currentValue: any) => {
@@ -57,15 +60,15 @@ const parseToComponent = (
     {json.map((c, index) => (
       <DynamicComponent
         key={index}
-        component={c.componentName}
-        propValues={parseProps(c.propValues)}
+        component={c.name}
+        propValues={parseProps(c.props)}
       >
-        {c.childrenComponents
-          ? c.childrenComponents.map((cc, index) => (
+        {c.children
+          ? c.children.map((cc, index) => (
               <DynamicComponent
                 key={index}
-                component={cc.componentName}
-                propValues={parseProps(cc.propValues)}
+                component={cc.name}
+                propValues={parseProps(cc.props)}
               />
             ))
           : null}

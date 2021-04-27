@@ -6,6 +6,7 @@ The code is just experimental...
 
 ### Todo
 
+- [ ] Recursive navigation on child components
 - [ ] Test components lifecycles
 - [ ] Make some unit tests
 
